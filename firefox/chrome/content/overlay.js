@@ -21,10 +21,10 @@
 */
 
 /* The XPCOM interfaces. */
-const INTERFACES = Components.interfaces;
+const TWITTER_INTERFACES = Components.interfaces;
 
 /* The domain names Twitter phones home with, lowercased. */
-const DOMAINS = ['twimg.com', 'twitter.com'];
+const TWITTER_DOMAINS = ['twimg.com', 'twitter.com'];
 
 /*
   Determines whether any of a bucket of domains is part of a URL, regex free.
@@ -38,20 +38,21 @@ function isMatching(url, domains) {
 
 /* Traps and selectively cancels a request. */
 Components.classes['@mozilla.org/observer-service;1']
-  .getService(INTERFACES.nsIObserverService)
+  .getService(TWITTER_INTERFACES.nsIObserverService)
   .addObserver({observe: function(subject) {
     const NOTIFICATION_CALLBACKS =
-        subject.QueryInterface(INTERFACES.nsIHttpChannel).notificationCallbacks
-            || subject.loadGroup.notificationCallbacks;
+        subject.QueryInterface(
+          TWITTER_INTERFACES.nsIHttpChannel
+        ).notificationCallbacks || subject.loadGroup.notificationCallbacks;
     const BROWSER =
         NOTIFICATION_CALLBACKS &&
             gBrowser.getBrowserForDocument(
               NOTIFICATION_CALLBACKS
-                .getInterface(INTERFACES.nsIDOMWindow).top.document
+                .getInterface(TWITTER_INTERFACES.nsIDOMWindow).top.document
             );
     subject.referrer.ref;
         // HACK: The URL read otherwise outraces the window unload.
-    BROWSER && !isMatching(BROWSER.currentURI.spec, DOMAINS) &&
-        isMatching(subject.URI.spec, DOMAINS) &&
+    BROWSER && !isMatching(BROWSER.currentURI.spec, TWITTER_DOMAINS) &&
+        isMatching(subject.URI.spec, TWITTER_DOMAINS) &&
             subject.cancel(Components.results.NS_ERROR_ABORT);
   }}, 'http-on-modify-request', false);
