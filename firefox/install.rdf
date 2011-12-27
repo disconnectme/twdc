@@ -34,8 +34,8 @@
     <em:description>
       Stop Twitter from tracking the webpages you go to.
     </em:description>
-    <em:iconURL>chrome://tdc/skin/icon.png</em:iconURL>
-    <em:icon64URL>chrome://tdc/skin/icon64.png</em:icon64URL>
+    <em:iconURL>chrome://twdc/skin/icon.png</em:iconURL>
+    <em:icon64URL>chrome://twdc/skin/icon64.png</em:icon64URL>
     <em:homepageURL>http://disconnect.me/twitter</em:homepageURL>
     <!-- Firefox -->
     <em:targetApplication>
