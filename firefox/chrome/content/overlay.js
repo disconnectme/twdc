@@ -20,39 +20,51 @@
     Brian Kennish <byoogle@gmail.com>
 */
 
-/* The XPCOM interfaces. */
-const TWITTER_INTERFACES = Components.interfaces;
 
-/* The domain names Twitter phones home with, lowercased. */
-const TWITTER_DOMAINS = ['twimg.com', 'twitter.com'];
+if (typeof Twdc == "undefined") {  
 
-/*
-  Determines whether any of a bucket of domains is part of a URL, regex free.
-*/
-function isMatching(url, domains) {
-  const DOMAIN_COUNT = domains.length;
-  for (var i = 0; i < DOMAIN_COUNT; i++)
-      if (url.toLowerCase().indexOf(domains[i], 2) >= 2) return true;
-          // A valid URL has at least two characters ("//"), then the domain.
+  var Twdc = {
+	  
+	/* The domain names Facebook phones home with, lowercased. */
+	DOMAINS : ['twimg.com', 'twitter.com'],
+			
+	/* The XPCOM interfaces. */
+	INTERFACES : Components.interfaces,
+	
+	/*
+	  Determines whether any of a bucket of domains is part of a URL, regex free.
+	*/
+	isMatching: function(url, domains) {
+	  const DOMAIN_COUNT = domains.length;
+	  for (var i = 0; i < DOMAIN_COUNT; i++)
+		  if (url.toLowerCase().indexOf(domains[i], 2) >= 2) return true;
+			  // A valid URL has at least two characters ("//"), then the domain.
+	},
+	
+	/* Initialization */	  
+    init : function() {  
+
+		/* Traps and selectively cancels a request. */
+        Twdc.obsService =  Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);  
+		Twdc.obsService.addObserver({observe: function(subject) {
+			Twdc.NOTIFICATION_CALLBACKS =
+				subject.QueryInterface(Twdc.INTERFACES.nsIHttpChannel).notificationCallbacks
+					|| subject.loadGroup.notificationCallbacks;
+			Twdc.BROWSER =
+				Twdc.NOTIFICATION_CALLBACKS &&
+					gBrowser.getBrowserForDocument(
+					  Twdc.NOTIFICATION_CALLBACKS
+						.getInterface(Twdc.INTERFACES.nsIDOMWindow).top.document
+					);
+			subject.referrer.ref;
+				// HACK: The URL read otherwise outraces the window unload.
+			Twdc.BROWSER && !Twdc.isMatching(Twdc.BROWSER.currentURI.spec, Twdc.DOMAINS) &&
+				Twdc.isMatching(subject.URI.spec, Twdc.DOMAINS) &&
+					subject.cancel(Components.results.NS_ERROR_ABORT);
+		  }}, 'http-on-modify-request', false);
+	}
+  }
 }
 
-/* Traps and selectively cancels a request. */
-Components.classes['@mozilla.org/observer-service;1']
-  .getService(TWITTER_INTERFACES.nsIObserverService)
-  .addObserver({observe: function(subject) {
-    const NOTIFICATION_CALLBACKS =
-        subject.QueryInterface(
-          TWITTER_INTERFACES.nsIHttpChannel
-        ).notificationCallbacks || subject.loadGroup.notificationCallbacks;
-    const BROWSER =
-        NOTIFICATION_CALLBACKS &&
-            gBrowser.getBrowserForDocument(
-              NOTIFICATION_CALLBACKS
-                .getInterface(TWITTER_INTERFACES.nsIDOMWindow).top.document
-            );
-    subject.referrer.ref;
-        // HACK: The URL read otherwise outraces the window unload.
-    BROWSER && !isMatching(BROWSER.currentURI.spec, TWITTER_DOMAINS) &&
-        isMatching(subject.URI.spec, TWITTER_DOMAINS) &&
-            subject.cancel(Components.results.NS_ERROR_ABORT);
-  }}, 'http-on-modify-request', false);
+/* Initialization of Fbdc object on load */
+window.addEventListener("load", function() { Twdc.init(); }, false);  
