@@ -25,12 +25,9 @@ if (typeof Twdc == "undefined") {
 
   var Twdc = {
 	  
-	/* The domain names Facebook phones home with, lowercased. */
-	DOMAINS : ['twimg.com', 'twitter.com'],
-			
-	/* The XPCOM interfaces. */
-	INTERFACES : Components.interfaces,
-	
+	/* The inclusion of the jQuery library*/
+	jQuery : jQuery.noConflict(),
+	  
 	/*
 	  Determines whether any of a bucket of domains is part of a URL, regex free.
 	*/
@@ -41,30 +38,181 @@ if (typeof Twdc == "undefined") {
 			  // A valid URL has at least two characters ("//"), then the domain.
 	},
 	
+	/* updates the menu icon with the number of blocks */
+	updateCount: function(){
+
+		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+						   .getInterface(Components.interfaces.nsIWebNavigation)
+						   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+						   .rootTreeItem
+						   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+						   .getInterface(Components.interfaces.nsIDOMWindow);		
+				
+		//alert(mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount);
+		if(typeof mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount == "undefined"){
+			mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount= 0;
+		}
+		
+		if(	mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount > 0 ){
+			Twdc.jQuery("#TwdcBlockingIcon").attr("src", "chrome://twdc/content/google-blocked.png" );
+		}
+		else{
+			Twdc.jQuery("#TwdcBlockingIcon").attr("src", "chrome://twdc/content/google-activated.png" );			
+		}
+		
+		if(window.content.localStorage.getItem('TwdcStatus')=="unblock"){
+			Twdc.jQuery("#TwdcBlock").attr("value","Block");			
+			Twdc.jQuery("#TwdcUnblock").attr("value",mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount+" unblocked");						
+		}
+		else{
+			Twdc.jQuery("#TwdcBlock").attr("value",mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount+" blocked");			
+			Twdc.jQuery("#TwdcUnblock").attr("value","Unblock");						
+		}		
+
+
+	},
+	
+	/* show Xpcom status */
+	showXpcom: function(){
+		var myComponent = Cc['@disconnect.me/twdc/contentpolicy;1'].getService().wrappedJSObject;;
+    	alert(myComponent.showStatus()); 			
+	},
+
+	/* Lifts international trade embargo on Facebook */
+	unblock: function(){
+
+		if(window.content.localStorage.getItem('TwdcStatus')=="unblock"){		
+			return;
+		}
+		window.content.localStorage.setItem('TwdcStatus', "unblock");	
+		window.content.location.reload();
+
+	},
+	
+	/* Enforce international trade embargo on Facebook */
+	block: function(){
+		if(window.content.localStorage.getItem('TwdcStatus')!="unblock"){		
+			return;
+		}		
+		window.content.localStorage.setItem('TwdcStatus', "block");	
+		window.content.location.reload();		
+	},
+	
+	/* Switches the image displayed by the Url Bar icon */
+	iconAnimation : function(){
+
+		Twdc.jQuery("#twdc-image-urlbar").mouseover(function(){												 
+			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar.png");
+		});	
+		Twdc.jQuery("#twdc-image-urlbar").mouseout(function(){
+			if(window.content.localStorage.getItem('TwdcStatus')=="unblock"){
+				Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_inactive.png");								
+			}
+			else{
+				Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_active.png");
+			}
+		});			
+
+		if(window.content.localStorage.getItem('TwdcStatus')=="unblock"){
+			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_inactive.png");								
+		}
+		else{
+			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_active.png");
+		}
+		
+		
+	},
+	
 	/* Initialization */	  
     init : function() {  
 
-		/* Traps and selectively cancels a request. */
-        Twdc.obsService =  Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);  
-		Twdc.obsService.addObserver({observe: function(subject) {
-			Twdc.NOTIFICATION_CALLBACKS =
-				subject.QueryInterface(Twdc.INTERFACES.nsIHttpChannel).notificationCallbacks
-					|| subject.loadGroup.notificationCallbacks;
-			Twdc.BROWSER =
-				Twdc.NOTIFICATION_CALLBACKS &&
-					gBrowser.getBrowserForDocument(
-					  Twdc.NOTIFICATION_CALLBACKS
-						.getInterface(Twdc.INTERFACES.nsIDOMWindow).top.document
-					);
-			subject.referrer.ref;
-				// HACK: The URL read otherwise outraces the window unload.
-			Twdc.BROWSER && !Twdc.isMatching(Twdc.BROWSER.currentURI.spec, Twdc.DOMAINS) &&
-				Twdc.isMatching(subject.URI.spec, Twdc.DOMAINS) &&
-					subject.cancel(Components.results.NS_ERROR_ABORT);
-		  }}, 'http-on-modify-request', false);
-	}
+		/* handles the url bar icon animation */
+		Twdc.iconAnimation();	
+
+		if(gBrowser){
+			gBrowser.addEventListener("DOMContentLoaded", Twdc.onPageLoad, false);  
+			gBrowser.tabContainer.addEventListener("TabAttrModified", Twdc.onTabChanged, false);  		
+		}
+	},
+	
+	/* called when another tab is clicked */
+	onTabChanged: function(aEvent){
+		var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+						   .getInterface(Components.interfaces.nsIWebNavigation)
+						   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+						   .rootTreeItem
+						   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+						   .getInterface(Components.interfaces.nsIDOMWindow);
+						   
+		//alert(mainWindow.getBrowser().selectedBrowser.contentWindow.document.DcTwdcCount);
+		
+		if(typeof mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount == "undefined"){
+			mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount = 0;			
+			Twdc.jQuery("#twdc-image-urlbar").hide();			
+		}
+		else if(mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount == 0){
+			Twdc.jQuery("#twdc-image-urlbar").hide();			
+		}
+		else{
+			Twdc.jQuery("#twdc-image-urlbar").show();						
+		}
+		if(window.content.localStorage.getItem('TwdcStatus')=="unblock"){
+			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_inactive.png");								
+
+		}
+		else{
+			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_active.png");
+		}		
+		
+	},
+	
+	/* called when page is loaded */	
+    onPageLoad: function(aEvent) {  
+        //var doc = aEvent.originalTarget; // doc is document that triggered the event  
+        //var win = doc.defaultView; // win is the window for the doc  
+        // test desired conditions and do something  
+        // if (doc.nodeName == "#document") return; // only documents  
+        // if (win != win.top) return; //only top window.  
+        // if (win.frameElement) return; // skip iframes/frames  
+        //alert("Number of Facebook Widgets : " +doc.DcTwdcCount); 
+		
+		window.setTimeout(function() {				
+			var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+							   .getInterface(Components.interfaces.nsIWebNavigation)
+							   .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+							   .rootTreeItem
+							   .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+							   .getInterface(Components.interfaces.nsIDOMWindow);
+							   
+			//alert(mainWindow.getBrowser().selectedBrowser.contentWindow.document.DcTwdcCount);
+			
+			if(typeof mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount == "undefined"){
+				mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount = 0;			
+				Twdc.jQuery("#twdc-image-urlbar").hide();			
+			}
+			else if(mainWindow.getBrowser().selectedBrowser.contentWindow.document.TwdcCount == 0){
+				Twdc.jQuery("#twdc-image-urlbar").hide();			
+			}
+			else{
+				Twdc.jQuery("#twdc-image-urlbar").show();						
+			}
+		}, 500);			
+    },
+	
+	/* Returns all attributes in any javascript/DOM Object in a string */
+	getAllAttrInObj: function(obj){
+		status = "";	
+		status += "<p>";
+		Twdc.jQuery.each(obj , function(name, value) {
+			status += name + ": " + value+"<br>";
+		});	
+		status += "</p>";	
+		return status;
+	},	
+	
+	
   }
 }
 
-/* Initialization of Fbdc object on load */
+/* Initialization of Twdc object on load */
 window.addEventListener("load", function() { Twdc.init(); }, false);  
