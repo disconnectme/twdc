@@ -163,7 +163,6 @@ if (typeof Twdc == "undefined") {
 		else{
 			Twdc.jQuery("#twdc-image-urlbar").attr("src", "chrome://twdc/content/icon_urlbar_active.png");
 		}		
-		
 	},
 	
 	/* called when page is loaded */	
