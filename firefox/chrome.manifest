@@ -17,6 +17,11 @@
 # Authors (one per line):
 #
 #   Brian Kennish <byoogle@gmail.com>
-content tdc chrome/content/
-skin tdc default chrome/skin/
-overlay chrome://browser/content/browser.xul chrome://tdc/content/overlay.xul
+
+content twdc chrome/content/
+skin twdc default chrome/skin/
+overlay chrome://browser/content/browser.xul chrome://twdc/content/overlay.xul
+
+component {d32a3c00-4ed3-11de-8a39-0800200c9a64} components/TwdcContentPolicy.js
+contract @disconnect.me/twdc/contentpolicy;1 {d32a3c00-4ed3-11de-8a39-0800200c9a64}
+category content-policy @disconnect.me/twdc/contentpolicy;1 @disconnect.me/twdc/contentpolicy;1

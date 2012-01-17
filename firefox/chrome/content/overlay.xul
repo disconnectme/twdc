@@ -23,7 +23,36 @@
 <overlay
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  id="tdc"
+  id="twdc"
 >
+  <script src="jquery.js"/>  
   <script src="overlay.js"/>
+<hbox id="urlbar-icons">  
+  
+
+        <image id="twdc-image-urlbar" src="chrome://twdc/content/icon_urlbar.png" 
+			label="Twitter Disconnect"
+			tooltiptext="Twitter Disconnect"
+			popup="statusTwitterBarPanelMenu"
+			onclick='Twdc.updateCount()'				 
+		
+		/>
+
+	  
+	  <menupopup id="statusTwitterBarPanelMenu" position="after_start">  
+        <menuitem oncommand='Twdc.block()'>
+          <image id="twdcBlockingIcon" class="channelIcon" src="chrome://twdc/content/twitter-activated.png" />				
+          <label value="0" id="TwdcBlock" />  							  
+
+	    </menuitem>			
+        <menuitem oncommand='Twdc.unblock()'>
+          <image class="channelIcon" src="chrome://twdc/content/twitter-deactivated.png" />				
+          <label value="Unblock"  id="TwdcUnblock"  />  		
+	    </menuitem>				
+						
+	  </menupopup>  
+	
+  
+</hbox>      
+  
 </overlay>
