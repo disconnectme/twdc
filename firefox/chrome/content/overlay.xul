@@ -2,7 +2,7 @@
 <!--
   Overlay markup that stops Twitter from tracking the webpages you go to.
 
-  Copyright 2010, 2011 Disconnect, Inc.
+  Copyright 2010-2012 Disconnect, Inc.
 
   This program is free software: you can redistribute it and/or modify it under
   the terms of the GNU General Public License as published by the Free Software
@@ -19,11 +19,36 @@
   Authors (one per line):
 
     Brian Kennish <byoogle@gmail.com>
+    Gary Teh <garyjob@gmail.com>
 -->
+<?xml-stylesheet href="overlay.css"?>
 <overlay
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"
-  id="tdc"
+  id="twitter-disconnect"
 >
   <script src="overlay.js"/>
+  <box id="urlbar-icons">
+    <image
+      id="twitter-disconnect-icon"
+      tooltiptext="View and manage Twitter requests"
+      popup="twitter-disconnect-popup"
+    />
+    <menupopup id="twitter-disconnect-popup" position="after_end">
+      <menuitem id="twitter-disconnect-blocking"/>
+      <menuseparator/>
+      <menuitem
+        id="twitter-disconnect-help"
+        label="Ask Disconnect a question"
+        accesskey="A"
+        value="http://getsatisfaction.com/disconnect"
+      />
+      <menuitem
+        id="twitter-disconnect-feedback"
+        label="Give Disconnect props"
+        accesskey="G"
+        value="https://addons.mozilla.org/en-US/firefox/addon/twdc/"
+      />
+    </menupopup>
+  </box>
 </overlay>

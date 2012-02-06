@@ -1,6 +1,6 @@
 # A chrome manifest that stops Twitter from tracking the webpages you go to.
 #
-# Copyright 2010, 2011 Disconnect, Inc.
+# Copyright 2010-2012 Disconnect, Inc.
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -17,6 +17,14 @@
 # Authors (one per line):
 #
 #   Brian Kennish <byoogle@gmail.com>
-content tdc chrome/content/
-skin tdc default chrome/skin/
-overlay chrome://browser/content/browser.xul chrome://tdc/content/overlay.xul
+#   Gary Teh <garyjob@gmail.com>
+
+# The content policy.
+component {2d47d700-93f5-44a5-ae05-7c35a35caf96} components/policy.js
+contract @disconnect.me/twitter;1 {2d47d700-93f5-44a5-ae05-7c35a35caf96}
+category content-policy @disconnect.me/twitter;1 @disconnect.me/twitter;1
+
+# The overlay.
+content twitter-disconnect chrome/content/
+skin twitter-disconnect default chrome/skin/
+overlay chrome://browser/content/browser.xul chrome://twitter-disconnect/content/overlay.xul
