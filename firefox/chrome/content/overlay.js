@@ -79,13 +79,17 @@ if (typeof TwitterDisconnect == 'undefined') {
         render(that, icon);
       }, false);
 
-      icon.onmouseover = function() { this.className = 'highlighted'; };
+      icon.addEventListener('mouseover', function() {
+        this.className = 'highlighted';
+      }, false);
 
-      icon.onmouseout = function() { this.removeAttribute('class'); };
+      icon.addEventListener('mouseout', function() {
+        this.removeAttribute('class');
+      }, false);
 
       var blocking = document.getElementById('twitter-disconnect-blocking');
 
-      icon.onclick = function() {
+      icon.addEventListener('click', function() {
         var labelName = 'label';
         var requestCount = that.getRequestCount() || 0;
         var label = ' Twitter request';
@@ -104,7 +108,7 @@ if (typeof TwitterDisconnect == 'undefined') {
           );
           blocking.setAttribute(shortcutName, 'U');
         }
-      };
+      }, false);
 
       var command = 'command';
 
