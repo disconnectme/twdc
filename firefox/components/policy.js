@@ -80,21 +80,30 @@ TwitterDisconnect.prototype = {
     var domains = this.domains;
     var result = accept;
 
-    if (
-      contentType != contentPolicy.TYPE_DOCUMENT && // The MIME type.
-          requestOrigin && requestOrigin.asciiHost &&
-              !isMatching(requestOrigin.host, domains) && // The whitelist.
-                  contentLocation.asciiHost &&
-                      isMatching(contentLocation.host, domains)
-                          // The blacklist.
-    ) {
+    if (context) {
       var html = context.ownerDocument;
-      var twitterRequestCount = html.twitterRequestCount;
-      html.twitterRequestCount =
-          typeof twitterRequestCount == 'undefined' ? 1 :
-              ++twitterRequestCount;
-      if (!JSON.parse(html.defaultView.content.localStorage.twitterUnblocked))
-          result = contentPolicy.REJECT_SERVER; // The blocking state.
+      var content = html.defaultView.content;
+
+      if (
+        contentType != contentPolicy.TYPE_DOCUMENT && // The MIME type.
+            requestOrigin && requestOrigin.asciiHost &&
+                !isMatching(requestOrigin.host, domains) &&
+                    !isMatching(content.top.location.hostname, domains) &&
+                        // The whitelist.
+                            contentLocation.asciiHost &&
+                                isMatching(contentLocation.host, domains)
+                                    // The blacklist.
+      ) {
+        var twitterRequestCount = html.twitterRequestCount;
+        html.twitterRequestCount =
+            typeof twitterRequestCount == 'undefined' ? 1 :
+                ++twitterRequestCount;
+        var twitterUnblocked = content.localStorage.twitterUnblocked;
+        if (typeof twitterUnblocked == 'undefined')
+            twitterUnblocked = content.localStorage.twitterUnblocked = false;
+        if (!JSON.parse(twitterUnblocked)) result = contentPolicy.REJECT_SERVER;
+            // The blocking state.
+      }
     }
 
     return result;
