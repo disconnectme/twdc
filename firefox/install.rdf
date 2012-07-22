@@ -28,16 +28,17 @@
     <em:type>2</em:type><!-- An extension. -->
     <em:id>twitter@disconnect.me</em:id>
     <em:name>Twitter Disconnect</em:name>
-    <em:version>2.1.1</em:version>
+    <em:version>2.1.2</em:version>
     <em:creator>Disconnect</em:creator>
     <em:developer>Brian Kennish</em:developer>
     <em:developer>Gary Teh</em:developer>
+    <em:developer>Dan Kwon</em:developer>
     <em:description>
       Stop Twitter from tracking the webpages you go to.
     </em:description>
     <em:iconURL>chrome://twitter-disconnect/skin/icon.png</em:iconURL>
     <em:icon64URL>chrome://twitter-disconnect/skin/icon64.png</em:icon64URL>
-    <em:homepageURL>http://disconnect.me/twitter</em:homepageURL>
+    <em:homepageURL>https://disconnect.me/twitter</em:homepageURL>
     <!-- Firefox. -->
     <em:targetApplication>
       <Description>
